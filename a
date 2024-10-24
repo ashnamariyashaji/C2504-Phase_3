@@ -1,0 +1,460 @@
+
+03 of 15
+INTRODUCTION
+Platform level integration is a common terminology used in healthcare IT practice to describe a system that does not connect
+to any applications or devices of other vendors and need not follow any standards. Integrating these systems with any third
+party applications poses a major challenge in today’s healthcare enterprise.
+IHE provides a framework for standards-based integration. IHE is a joint initiative of the Radiological Society of North America
+(RSNA) and the healthcare information and Management systems Society (HIMSS). It aims to develop a framework to ease the
+integration of, and information flow between, various medical information systems with the ultimate goal of ensuring that all
+required clinical information is correct and readily available to the relevant users. Currently, interfacing systems can be difficult
+due to the different standards – and implementation of those standards – employed by such systems. IHE aims to define how
+existing standards may be used in order to facilitate communication between computer systems used in healthcare.
+PRESENT SCENARIO
+Figure 1 shows the various information systems and modalities in the traditional healthcare environment where HIS-RIS and
+PACS are not integrated. In general, Patient information system performs the patient registration, admission, transfer; order
+placing, billing and discharge of patient in a typical hospital environment.
+The radiology information system performs tasks related to radiology department such as order filling, patient/examination
+scheduling etc. With respect to images, the imaging modalities generate images and then the images would be archived on the
+PACS. Archived images can be later reviewed or distributed to other departments. Entities within each of these systems
+communicate with each other using various medical standards such as health level 7(HL7) or digital imaging and communications
+in medicine (DICOM).
+Patient information system uses HL7 protocol in-order to transfer patient demographics, patient/exam scheduled details, and
+other patient related information, to the radiology information system. Similarly, PACS, modality and review stations use DICOM
+for storing and querying images between these systems.
+However communication between the systems (HIS and PACS) is either paper based or film based as shown in Figure 1.
+Figure 1: Information systems and modalities in the healthcare environment
+Patient Information
+System
+Paper Based 
+Radiology orders
+/Reports
+Radiology Information 
+System
+Hospital Information 
+System
+Film based
+Reports Review Station
+PACS/Modality
+HL7
+Modalities
+Archive
+DICOM
+DICOM
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+04 of 15
+DRAWBACKS
+RIS receives the patient demographics and ADT (admission, discharge and transmission) related data. Along with patient data,
+RIS also contains patient/exam scheduling details which is required by PACS/Modality. Exchange of relevant information
+between HIS and PACS/Modality is paper/film based as we see in Figure 1. This could lead to a number of drawbacks.
+• The critical patient-related data must be re-entered manually into these systems
+• Discrepancies in re-entering data manually, would negatively impact the efficiency and productivity
+• Time consuming
+• Cost overhead due to paper and film based transactions
+• Difficulty in obtaining and maintaining old films/reports
+NEED FOR HIS-RIS-PACS INTEGRATION
+The whole healthcare enterprise involves number of disparate resources and information systems (refer Figure 1). In order to
+provide the best possible patient care, information from all resources should be utilized. However, the ability of the various systems
+to effectively communicate with each other is often lacking. Integrating the healthcare enterprise (IHE) seeks to promote
+effective communication between information systems in order to aid efficient and economic healthcare.
+HIS-RIS-PACS INTEGRATION
+Figure 2: Introduction of PACS broker between the HIS and PACS/Modality
+HIS
+HL7
+HL7
+RIS
+DICOM
+DICOM
+DICOM
+DICOM
+Modality
+Review
+Hospital Information PACS/Modality
+System
+PACS
+Broker PACS
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+05 of 15
+PACS broker acts as an interpreter of patient information across HIS and PACS. Ideally RIS schedules patient’s radiology
+procedures, which would be required by Modality to perform the scheduled procedures. PACS broker translates HL7 messages
+to DICOM, which enables the PACS/Modality to understand the patient related information and store it locally. Similarly, RIS
+needs to be updated with performed procedure status from the Modality. In this case PACS broker translates DICOM to HL7
+message, which would be interpreted by RIS and then stored in local HIS/RIS database. PACS broker bridges gap between HIS
+and PACS/Modality by providing electronic means of patient data exchange and avoiding manual re-entry of data.
+Benefits of such an integrated healthcare enterprise would account for:
+• Improved clinical workflow
+• Improved information accuracy
+• Enabling of cross-system functionality
+• Improved information availability
+A SOLUTION FRAMEWORK
+The scheduled workflow integration profile establishes the continuity and integrity of basic departmental imaging data
+acquired in an environment where examinations are generally being ordered. It specifies a number of transactions that
+maintain the consistency of patient and ordering information as well as defining the scheduling and imaging acquisition
+procedure steps.
+The IHE implementation architecture for the scheduled workflow Integration profile considers the following actors for
+implementation
+• The order filler
+• Evidence creator
+• Archive manager
+• Image viewer
+• PPS manager
+These actors along with the actors ADT, acquisition Modality and order placer and their transactions, as described in IHE, are
+taken into consideration for the proposed framework. The data flow between actors is either in the form of HL7 message or
+DICOM messages.
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+06 of 15
+The framework for implementing scheduled workflow integration profile can be seen Figure 3.
+Figure 3: Scheduled Workflow
+The architecture assumes that ADT and order placer actors (typically a part of HIS) are in place. These applications send data in
+HL7 format to the order filler system. The ADT sends out patient related data and the order placer sends order related data like
+order creation, order cancellation, order update etc.
+The order filler system receives the HL7 formatted data and commits it to the repository so that this data can be used for
+responding to the MWM query from the acquisition modality. The order filler system schedules the procedures and communicates
+status updates to the order placer.
+The archive manager acts as the image store. The images are pushed to the archive manager through DICOM from acquisition
+modality and evidence creator system. The archive manager also runs the query retrieve service for the image viewer.
+The evidence creator system communicates with the performed procedure step manager system and the archive manager. It
+communicates the status of the order to the performed procedure step manager. The system communicates the storage
+commitment and transfers the images to the archive manager.
+The ‘performed procedure step manager’ forwards the ‘procedure step-in progress’ and ‘procedure step completed DICOM
+messages’ to the archive manager system and the order filler system. Thus it implements both MPPS SCU and SCP services.
+The image viewer system is a user interface for viewing and minimal post processing on the images. The image viewer queries
+for images from the archive manager system and displays the retrieved images.
+Order 
+Filler
+System
+Image
+ Viewer
+System
+Archive
+Manager
+Sysem
+Patient Related data
+(HL7)
+Order Related data
+(HL7)
+Performed Procedure
+Step 
+DICOM
+Procedure
+(HL7)
+Query-Retrieve
+(DICOM)
+Work-list
+(DICOM)
+Storage
+(DICOM)
+PPS
+Manager
+System
+ADT
+Evidence
+Creator
+System
+Acquisition
+Modality
+Order 
+Placer
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+07 of 15
+Order Filler System
+This sub system fills the request or order raised by the order placing system and acts as an interface between information
+systems in a healthcare setup (like HIS, RIS) and the acquisition modalities. It interfaces with the information systems through
+HL7 protocol.
+The modular representation of this sub-system can be depicted as follows:
+Figure 4: Order filler system
+HL7 broker sub system
+This module takes care of the reception and transmission of HL7 data from external systems. The messages are received,
+decoded and committed to a data store. Various inputs and outputs for a typical HL7 broker are as shown in Figure 5.
+HIS
+RIS
+HL7 
+Broker
+ADT
+ORM
+Patient 
+Manager
+DICOM 
+Filler 
+Subsystem
+Filler
+Configuration
+Order
+Manager
+Scheduler
+Modality
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+08 of 15
+Figure 5: Inputs and outputs for a typical HL7 broker
+DICOM filler sub system
+The DICOM Filler sub system addresses the DICOM communication part of the order filler system. The order filler system has to
+communicate with acquisition modality, performed procedure step manager system and archive manager system to service the
+DICOM centric requests of these applications as shown Figure 6.
+The DICOM data would be sent across applications on a secured network.
+Figure 6: Input output flow in a DICOM filler sub system
+ADT
+Order
+Placer
+HL7 
+Broker
+Patient Centric Data
+Order Creation
+Order Cancellation
+Order Creation
+Order Status Update
+Order Cancellation
+Procedure Scheduled
+Procedure Updated
+Order
+Placer
+Image 
+Manager
+Modality
+PPS 
+Manager
+Modality Work-list Query
+MPPS in Progress
+MPPS Complete
+DICOM 
+Filler Sub 
+System
+Image Availability Query
+Query Response
+Image 
+Manager
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+09 of 15
+Scheduler sub system
+The scheduler sub system manages the process of assigning scheduled procedures to a modality by running scheduling
+algorithm. This assures balanced loading and optimal use of scarce resources (modalities).
+Figure 7: Input output flow in a scheduler sub system
+Order manager sub system
+The order manager is designated to handle order related messages such as order creation, order update, order cancellation etc.
+from the order placer. It updates the local database with the order data. It’s also responsible for creating or updating order while
+keeping the order placer in sync.
+Figure 8: Input output flow in an order manager sub system
+Scheduler 
+Sub 
+System
+HL7 Broker Image 
+Manager
+Scheduled Procedure Query
+Query Response
+HL7 Broker
+Order Creation
+Order 
+Cancellation
+Order 
+Manager
+Order Creation
+Order Status Update
+Order Cancellation
+Order Cancellation
+HL7 Broker
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+10 of 15
+Patient manager sub system
+The patient manager sub system gets patient data and updates from the patient registration system. Patient data is updated in
+the database and communicated to the archive manager
+Figure 9: Input output flow of data in a patient manager sub system
+Filler configuration sub system
+This sub system contains data about general configuration of the system, details about the third party application and workflow
+related configuration data. This allows for a flexible workflow to pull out and plug in components.
+ THE METHODOLOGY USED
+Integration of stand alone hospital information system (HIS), radiology information system (RIS) with picture archiving and
+communication system (PACS) can be achieved by following a five step process. This would help in implementing the proposed
+framework (scheduled workflow integration profile) for an integrated healthcare enterprise.
+The necessary steps to be followed are
+• Readiness check
+• Data mapping
+• Prototyping
+• Customization and implementation
+• Dry run and testing
+HL7 Broker
+Patient Admission
+Patient 
+Manager Sub 
+system
+Archive 
+Manager
+Out Patient Registration
+In-Patient Pre Admit
+Patient Discharge
+OP to IP
+IP to OP
+Patient Update
+Patient Merge
+Cancel Discharge
+Patient 
+Update
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+11 of 15
+Scenario
+The HIS captures and manages Patient related data. The Patient related data includes patient registration, inpatient admit,
+outpatient admit, patient transfer and patient discharge.
+The RIS acts as the order placing system. The responsibilities of the RIS includes creation of new orders, updating the order
+related data and cancellation of orders. The procedure related data is captured as a part of the order entry process.
+PACS is used in the radiology department for acquisition of medical image, data transmission of medical data and images via
+a network; display and manipulation of medical images and archiving of image data;
+HIS, RIS and PACS systems are not integrated, however the information systems are HL7 and DICOM compliant. Scenario can be
+depicted graphically as shown in figure 1.
+Solution
+The PACS broker functionality bridges the gap between HIS –RIS and the modality by taking data from HIS-RIS in HL7 format.
+The PACS broker functionality also provides MWM SCP service to the modality and receives performed procedure step status
+updates (refer the proposed framework). The PACS broker functionality can reside on an independent hardware (broker) or on
+PACS/RIS (broker less solution).
+Figure 10: Integration of RIS-HIS-PACS using broker functionality
+HIS
+RIS
+PACS
+Broker 
+Functionality
+ADT
+ORM
+MWM
+MPPS
+Modality
+Image 
+Viewer
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+12 of 15
+Prerequisites
+• HIS-RIS are HL7 compliant. This translates in to ability of the information systems to communicate patient and order
+centric data in HL7 format with other systems. The mode of communication (TCP/IP, HTTP and FTP) may be defined by the
+vendors. The content of the HL7 messages may be in ASCII text or in XML, though the latter is widely used.
+• Modality is DICOM compliant. This defines the ability of the Modality to run DICOM services and communicate with other
+DICOM applications to exchange imaging data.
+Readiness Check
+There are some issues that need to be addressed for a successful integration. These can be classified in to
+• RIS-PACS capabilities
+• Modality readiness (DICOM compliance)
+• Workflow changes
+Gap analysis would examine the existing system from functional and technical perspective based on the parameters (issues)
+mentioned above. The functional perspective would provide insights into the integration requirements of existing systems as
+per IHE standards. The technical perspective would delve into issues dealing with technology such as integration of various
+systems on different platforms, transport mechanism, security requirements etc.
+Data Mapping
+The mapping of fields to DICOM tags is governed by the conformance statement of the modality. The usage of codes as
+described in standards for fields (LOINC, ICD Code defined in HL7) must be determined. The mapping of local/site-specific codes
+to standard defined codes can be done on the broker or in the existing applications. This can be mutually decided.
+Prototyping
+The prototyping is done to demonstrate the changes in workflow due to the implementation of scheduled workflow integration
+profile. This also provides an opportunity to review the integration process as a whole from the perspective of all the vendors.
+Customization/implementation
+Customization is needed as there is disparity in the way the standards - HL7 and DICOM - treat the data .For example, the
+accession number is a unique identifier in the Modality , while HIS-RIS might not generate it at all. So the configuration module
+would make use of a unique transaction ID generated in the system.
+Similarly DICOM services need to be configured as per the conformance statements of the Modality vendors. The module will
+also make provisions for future enhancements of the system.
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+13 of 15
+Dry Run and Testing
+The individual modules are tested by a cycle of unit testing by writing stubs. The integration testing is done after other
+applications are setup. All the possible work flows would be tested during the dry run. The end of this cycle signals the
+implementation of integrated environment of Modality and the information systems.
+ARCHITECTURE
+The architecture for implementing the order filler actor should be arrived at by considering the following criteria.
+Cross platform support: Cross platform support: The implementation should be compatible with multiple platforms. This would allow easy deployment
+of the solution irrespective of the target platform. This calls for a middleware with common system interface which would
+implement OS specific system calls. The solution should be customizable by compiling the source code for a particular OS.
+Distributed: stributed: stributed: The solution should be modular with each of the modules realizing unit functionality. These modules should have
+the capability of being distributed across machines if need arises for such a deployment.
+Scalable: Scalable: The solution should be capable of handling varying amount of traffic from the peer applications. The solution should Scalable:
+have load balancing mechanisms in place so that performance can be tuned as per requirement and large amount of transactions
+can be handled per unit of time.
+Configurable: Configurable: Configurable: The various modules comprising the solution should be configurable. These configurations such as peer application
+name, IP address, supported TAGS, supported HL7 fields, HL7 messages etc can be provided through a text file interface. These
+fields/TAGS defined in the standards (HL7 and DICOM) can be mapped to the database of the order filler using configuration
+files for seamless integration of applications with the order filler.
+The other key issues considered while arriving at the architecture and design are
+• Secure exchange of information
+• Variety of message transport protocols supported (TCP/IP, FTP, HTTP)
+• Support for message oriented middleware
+• Traceability of transactions (logging facility)
+• Use of XML format of HL7 data exchange
+CONCLUSION
+The Integrated Healthcare Enterprise that implements scheduled workflow Integration profile results in improved clinical
+workflow, improved information accuracy and improved information availability.
+The advantages of implementing the order filler (key component of schedule workflow integration profile) as per the
+recommended methodology would help keep the system scalable and configurable which would essentially result in speedy
+implementation and reduced time-to-market.
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+14 of 15
+ REFERENCE
+1. www.rsna.org/ihe
+2. www.himss.org/ihe
+3. www.hl7.org
+4. http://medical.nema.org/
+5. ‘DICOM standards’
+6. ‘HL7 standards’
+7. ‘IHE Framework document’
+ ACRONYMS
+ADT Admission, Discharge and Transfer System
+DICOM Digital Imaging and communications in Medicine
+HIS Hospital Information System
+HL7 Health Industry Level 7 Interface Standard
+IHE Integrating Healthcare Enterprise
+PACS Picture Archiving and Communications System
+RIS Radiology Information System
+SWF Scheduled Work Flow
+TCP/IP Transmission Control Protocol/Internet Protocol
+HTTP Hyper Text Transmission Protocol
+MPPS Modality Performed Procedure Steps
+MWM Modality Work List Management
+PPS Performed Procedure Steps
+SWF Scheduled Work Flow
+ABOUT THE AUTHORS
+Badhri is working in the Medical Devices Group of Wipro Technologies. He has been working in the medical devices domain for
+the last 4 years, mainly focusing on HL7, PACS and IHE related areas. Badhri holds a master’s degree in Computer Applications.
+Rakesh is working in the Medical Devices Group of Wipro Technologies. He has been working in the medical devices domain
+for more than 3years, mainly focusing on image processing, multimedia and DICOM related areas. He holds a bachelor’s degree
+in Electrical Engineering.
+© Wipro Technologies Page:
+Framework, Methodology and Architecture for Integrating Healthcare Enterprises
+www.wipro.com
+eMail: info@wipro.com
+For further information visit us at: http://www.wipro.com/medicaldevices
+For more whitepapers logon to: http://www.wipro.com/insights
+© Copyright 2005. Wipro Technologies. All rights reserved. No part of this document may be reproduced, stored in a retrieval system, transmitted in any form or by any means, electronic, mechanical,
+photocopying, recording, or otherwise, without express written permission from Wipro Technologies. Specifications subject to change without notice. All other trademarks mentioned herein are the
+property of their respective owners. Specifications subject to change without notice.
+15 of 15
+Worldwide HQ
+Wipro Technologies,
+Sarjapur Road,
+Bangalore-560 035,
+India.
+U.S.A. U.K. France
+Wipro Technologies Wipro Technologies Wipro Technologies
+1300 Crittenden Lane, 137 Euston Road, 91 Rue Du Faubourg,
+Mountain View, CA 94043. London, NW1 2 AA. Saint Honoré, 75008 Paris.
+Germany Japan U.A.E.
+Wipro Technologies Wipro Technologies Wipro Limited
+Horn Campus, # 911A, Landmark Tower, Office No. 124,
+Kaistrasses 101, 2-1-1 Minatomirai 2-chome, Building 1, First Floor,
+Kiel 24114. Nishi-ku, Yokohama 220 8109. Dubai Internet City,
+P.O. Box 500119, Dubai.
+ABOUT WIPRO TECHNOLOGIES
+Wipro is the first PCMM Level 5 and SEI CMMi Level 5 certified IT Services Company globally. Wipro provides comprehensive IT
+solutions and services (including systems integration, IS outsourcing, package implementation, software application development
+and maintenance) and Research & Development services (hardware and software design, development and implementation)
+to corporations globally.
+Wipro's unique value proposition is further delivered through our pioneering Offshore Outsourcing Model and stringent
+Quality Processes of SEI and Six Sigma.
+WIPRO IN MEDICAL DEVICES
+Wipro focuses on the diagnostic imaging, image management, patient monitoring and modality solution segments within the
+medical device industry. Wipro provides medical devices’ verification and validation services, application/embedded software
+and hardware design services for medical devices companies. These include development of applications on multiple platforms;
+migration from one platform to another; DICOM, HL7, HIPAA and IHE framework solutions; design and prototype development
+of boards for medical devices; and embedded software solutions that include BSP, boot loader and device driver development.
