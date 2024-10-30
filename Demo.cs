@@ -1,257 +1,416 @@
-// Models/Patient.cs
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class Patient
+namespace PatientApp
 {
-    public string Name { get; set; }
-    public int Age { get; set; }
-    public DateTime DOB { get; set; }
-    public string Address { get; set; }
-    public string Slot { get; set; }  // Morning or Evening
-    public DateTime BookingDate { get; set; }
+    public class Patient
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public string Address { get; set; }
+        public string Slot { get; set; } 
+        public DateTime BookingDate { get; set; }
+
+    }
 }
 
-// Models/AppointmentSlot.cs
+
+
+
 using System;
-
-public class AppointmentSlot
-{
-    public DateTime AppointmentDate { get; set; }
-    public string Time { get; set; }
-    public string PatientName { get; set; }
-}
-
-Here’s a foundational setup to create a WPF Patient Admission application using MVVM with user controls, event handling, and observable collections. This guide will outline the main components and some sample code for key parts.
-
-Project Structure
-
-1. Models: Define the data models.
-
-
-2. ViewModels: Define the business logic and interactions.
-
-
-3. Views: Define the UI with XAML for the main and child screens using UserControls.
-
-
-
-Step 1: Create Model Classes
-
-In the Models folder, create classes for Patient and AppointmentSlot.
-
-// Models/Patient.cs
-using System;
-
-public class Patient
-{
-    public string Name { get; set; }
-    public int Age { get; set; }
-    public DateTime DOB { get; set; }
-    public string Address { get; set; }
-    public string Slot { get; set; }  // Morning or Evening
-    public DateTime BookingDate { get; set; }
-}
-
-// Models/AppointmentSlot.cs
-using System;
-
-public class AppointmentSlot
-{
-    public DateTime AppointmentDate { get; set; }
-    public string Time { get; set; }
-    public string PatientName { get; set; }
-}
-
-Step 2: Create an Interface for the ViewModel
-
-Define an interface for the PatientViewModel.
-
-// ViewModels/IPatientViewModel.cs
-using System.Collections.ObjectModel;
-
-public interface IPatientViewModel
-{
-    ObservableCollection<Patient> Patients { get; }
-    ObservableCollection<AppointmentSlot> Appointments { get; }
-    void AddPatient(Patient patient);
-    void ConfirmAppointment(Patient patient);
-}
-
-Step 3: Implement the ViewModel
-
-Implement PatientViewModel, inheriting from IPatientViewModel. Use an ObservableCollection to manage data and EventHandlers for notifications.
-
-// ViewModels/PatientViewModel.cs
-using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class PatientViewModel : IPatientViewModel
+namespace PatientApp
 {
-    public ObservableCollection<Patient> Patients { get; private set; }
-    public ObservableCollection<AppointmentSlot> Appointments { get; private set; }
-
-    public event EventHandler<string> AppointmentConfirmed;
-
-    public PatientViewModel()
+    public interface IPatient
     {
-        Patients = new ObservableCollection<Patient>();
-        Appointments = new ObservableCollection<AppointmentSlot>();
-    }
-
-    public void AddPatient(Patient patient)
-    {
-        Patients.Add(patient);
-    }
-
-    public void ConfirmAppointment(Patient patient)
-    {
-        var appointment = new AppointmentSlot
-        {
-            AppointmentDate = DateTime.Now,
-            Time = patient.Slot,
-            PatientName = patient.Name
-        };
-        Appointments.Add(appointment);
-
-        // Trigger event
-        AppointmentConfirmed?.Invoke(this, $"{patient.Name}'s appointment is confirmed on {appointment.AppointmentDate}");
+        ObservableCollection<Patient> Patients { get; }
+        void RegisterPatient(Patient patient);
     }
 }
 
-Step 4: Create the User Controls (XAML)
 
-Patient Registration User Control
 
-Create a PatientRegistration.xaml with fields for patient data input.
 
-<!-- Views/PatientRegistration.xaml -->
-<UserControl x:Class="YourNamespace.Views.PatientRegistration"
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PatientApp
+{
+    public class PatientViewModel : IPatient
+    {
+        public ObservableCollection<Patient> Patients { get; private set; }
+
+        public PatientViewModel()
+        {
+            Patients = new ObservableCollection<Patient>();
+        }
+
+        public void RegisterPatient(Patient patient)
+        {
+            Patients.Add(patient);
+            // Raise an event for notification
+            OnPatientRegistered?.Invoke(this, patient);
+        }
+
+        public event EventHandler<Patient> OnPatientRegistered;
+    }
+}
+
+
+
+
+<Window x:Class="PatientApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PatientApp"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Canvas>
+        <TextBlock Text="Patient Management System" FontSize="29" Canvas.Left="200" Canvas.Top="10" FontWeight="Bold"/>
+        <Button x:Name="btnRegistration" Content="Register Patient" Canvas.Left="10" Canvas.Top="80" Click="btnRegistration_Click" />
+        <Button x:Name="btnAppointment" Content="Appointment Confirmation" Canvas.Left="10" Canvas.Top="130" Click="btnAppointment_Click" />
+        <Button x:Name="btnDashboard" Content="Patient Dashboard" Canvas.Left="10" Canvas.Top="180" Click="btnDashboard_Click"/>
+        <ContentControl x:Name="MainContent" Canvas.Left="200" Canvas.Top="60" Width="400" Height="300" HorizontalAlignment="Center" VerticalAlignment="Center">
+        </ContentControl>
+    </Canvas>
+</Window>
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace PatientApp
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        private PatientViewModel _viewModel;
+        public MainWindow()
+        {
+            InitializeComponent();
+            _viewModel = new PatientViewModel();
+            LoadInitialView();
+        }
+        private void LoadInitialView()
+        {
+            var registerControl = new PatientRegControl(_viewModel);
+            registerControl.NavigateToAppointment += RegisterControl_NavigateToAppointment;
+            MainContent.Content = registerControl;
+        }
+        private void RegisterControl_NavigateToAppointment()
+        {
+            var appointmentControl = new AppointmentConfirmationControl(_viewModel);
+            appointmentControl.NavigateToDashboard += AppointmentControl_NavigateToDashboard;
+            MainContent.Content = appointmentControl;
+        }
+
+        private void AppointmentControl_NavigateToDashboard()
+        {
+            var dashboardControl = new PatientDashboardControl(_viewModel);
+           MainContent.Content = dashboardControl;
+        }
+
+        private void btnRegistration_Click(object sender, RoutedEventArgs e)
+        {
+            var patientRegControl = new PatientRegControl(_viewModel);
+            var mainWindow  = Window.GetWindow(this) as MainWindow;
+            if(mainWindow != null)
+            {
+                mainWindow.MainContent.Content = patientRegControl;
+            }
+        }
+
+        private void btnAppointment_Click(object sender, RoutedEventArgs e)
+        {
+            var appointmentConfirmationControl = new AppointmentConfirmationControl(_viewModel);
+            var mainWindow = Window.GetWindow(this) as MainWindow;
+            if (mainWindow != null)
+            {
+                mainWindow.MainContent.Content = appointmentConfirmationControl;
+            }
+        }
+
+        private void btnDashboard_Click(object sender, RoutedEventArgs e)
+        {
+            var patientDashboardControl = new PatientDashboardControl(_viewModel);
+            var mainWindow = Window.GetWindow(this) as MainWindow;
+            if (mainWindow != null)
+            {
+                mainWindow.MainContent.Content = patientDashboardControl;
+            }
+        }
+    }
+}
+
+
+
+
+
+<UserControl x:Class="PatientApp.PatientRegControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel>
-        <TextBox x:Name="NameTextBox" PlaceholderText="Enter Name" />
-        <TextBox x:Name="AgeTextBox" PlaceholderText="Enter Age" />
-        <DatePicker x:Name="DOBPicker" />
-        <TextBox x:Name="AddressTextBox" PlaceholderText="Enter Address" />
-        <ComboBox x:Name="SlotComboBox">
-            <ComboBoxItem Content="Morning" />
-            <ComboBoxItem Content="Evening" />
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PatientApp"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Canvas Width="400" Height="450">
+        <TextBlock Text="Name" Canvas.Left="10" Canvas.Top="10"/>
+        <TextBox x:Name="NameTextBox" Width="200" Canvas.Left="10" Canvas.Top="30"/>
+
+        <TextBlock Text="Age" Canvas.Left="10" Canvas.Top="70"/>
+        <TextBox x:Name="AgeTextBox" Width="200" Canvas.Left="10" Canvas.Top="90"/>
+
+        <TextBlock Text="Date of Birth" Canvas.Left="10" Canvas.Top="130"/>
+        <DatePicker x:Name="DOBPicker" Width="200" Canvas.Left="10" Canvas.Top="150"/>
+
+        <TextBlock Text="Address" Canvas.Left="10" Canvas.Top="190"/>
+        <TextBox x:Name="AddressTextBox" Width="200" Canvas.Left="10" Canvas.Top="210"/>
+
+        <TextBlock Text="Slot" Canvas.Left="10" Canvas.Top="250"/>
+        <ComboBox x:Name="SlotComboBox" Width="200" Canvas.Left="10" Canvas.Top="270">
+            <ComboBoxItem Content="Morning"/>
+            <ComboBoxItem Content="Evening"/>
         </ComboBox>
-        <DatePicker x:Name="BookingDatePicker" />
-        <Button Content="Register" Command="{Binding AddPatientCommand}" />
+
+        <TextBlock Text="Booking Date" Canvas.Left="10" Canvas.Top="310"/>
+        <DatePicker x:Name="BookingDate" Width="200" Canvas.Left="10" Canvas.Top="330"/>
+        
+        <Button x:Name="btnRegister" Content="Register" Width="100" Canvas.Left="10" Canvas.Top="380" Click="btnRegister_Click"/>
+    </Canvas>
+</UserControl>
+
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace PatientApp
+{
+    /// <summary>
+    /// Interaction logic for PatientRegControl.xaml
+    /// </summary>
+    public partial class PatientRegControl : UserControl
+    {
+        private PatientViewModel _viewModel;
+        public event Action NavigateToAppointment;
+       
+        public PatientRegControl(PatientViewModel viewModel)
+        {
+            InitializeComponent();
+            _viewModel = viewModel;
+        }
+
+        private void btnRegister_Click(object sender, RoutedEventArgs e)
+        {
+            var patient = new Patient
+            {
+                Name = NameTextBox.Text,
+                Age = int.Parse(AgeTextBox.Text),
+                DateOfBirth = DOBPicker.SelectedDate.Value,
+                Address = AddressTextBox.Text,
+                Slot = SlotComboBox.SelectedItem.ToString(),
+                BookingDate = DateTime.Now
+            };
+            _viewModel.RegisterPatient(patient);
+
+            // Trigger navigation to appointment confirmation
+            NavigateToAppointment?.Invoke();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+<UserControl x:Class="PatientApp.AppointmentConfirmationControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PatientApp"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel Margin="20">
+        <TextBlock Text="Appointment Confirmation" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+
+        <ListBox x:Name="PatientsListBox" Height="200">
+            <!-- Items will be added dynamically in the code-behind -->
+        </ListBox>
+
+        <Button x:Name="btnConfirm" Content="Confirm Appointment"  Margin="0,20,0,0" Click="btnConfirm_Click"/>
     </StackPanel>
 </UserControl>
 
-Patient Dashboard User Control
 
-Displays patient details in a DataGrid.
 
-<!-- Views/PatientDashboard.xaml -->
-<UserControl x:Class="YourNamespace.Views.PatientDashboard"
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace PatientApp
+{
+    /// <summary>
+    /// Interaction logic for AppointmentConfirmationControl.xaml
+    /// </summary>
+    public partial class AppointmentConfirmationControl : UserControl
+    {
+        private PatientViewModel _viewModel;
+        public event Action NavigateToDashboard;
+       
+        
+        public AppointmentConfirmationControl(PatientViewModel viewModel)
+        {
+            InitializeComponent();
+            _viewModel = viewModel;
+            LoadPatients();
+        }
+        private void LoadPatients()
+        {
+            // Assuming _viewModel.Patients is a List<Patient> that contains the registered patients
+            foreach (var patient in _viewModel.Patients)
+            {
+                var checkBox = new CheckBox
+                {
+                    Content = $"{patient.Name} (Age: {patient.Age}, DOB: {patient.DateOfBirth.ToShortDateString()}, Address: {patient.Address})",
+                    Tag = patient // Store the patient object in the Tag property for later use
+                };
+                PatientsListBox.Items.Add(checkBox);
+            }
+        }
+        private void btnConfirm_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedPatients = new List<Patient>();
+
+            // Iterate through the CheckBoxes in the ListBox to find checked ones
+            foreach (CheckBox checkBox in PatientsListBox.Items)
+            {
+                if (checkBox.IsChecked == true && checkBox.Tag is Patient patient)
+                {
+                    selectedPatients.Add(patient);
+                }
+            }
+            NavigateToDashboard?.Invoke();
+        }
+    }
+}
+
+
+
+
+
+
+
+<UserControl x:Class="PatientApp.PatientDashboardControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <DataGrid ItemsSource="{Binding Patients}" AutoGenerateColumns="True" />
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PatientApp"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel>
+        <TextBlock Text="Patient Dashboard" FontSize="24" FontWeight="Bold"/>
+        <DataGrid ItemsSource="{Binding Patients}" AutoGenerateColumns="True"/>
+    </StackPanel>
 </UserControl>
 
-Step 5: Main Window (Navigation)
 
-The main window holds buttons to navigate between user controls.
 
-<!-- MainWindow.xaml -->
-<Window x:Class="YourNamespace.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid>
-        <StackPanel>
-            <Button Content="Register Patient" Command="{Binding ShowPatientRegistrationCommand}" />
-            <Button Content="View Dashboard" Command="{Binding ShowPatientDashboardCommand}" />
-            <ContentControl Content="{Binding CurrentView}" />
-        </StackPanel>
-    </Grid>
-</Window>
 
-Step 6: Define Commands in the ViewModel
-
-Add commands to handle navigation.
-
-// In PatientViewModel
-public ICommand ShowPatientRegistrationCommand { get; }
-public ICommand ShowPatientDashboardCommand { get; }
-public object CurrentView { get; private set; }
-
-public PatientViewModel()
-{
-    ShowPatientRegistrationCommand = new RelayCommand(ShowPatientRegistration);
-    ShowPatientDashboardCommand = new RelayCommand(ShowPatientDashboard);
-    ShowPatientRegistration();
-}
-
-private void ShowPatientRegistration()
-{
-    CurrentView = new PatientRegistration();
-    OnPropertyChanged(nameof(CurrentView));
-}
-
-private void ShowPatientDashboard()
-{
-    CurrentView = new PatientDashboard();
-    OnPropertyChanged(nameof(CurrentView));
-}
-
-Step 7: RelayCommand for Commands
-
-Create a RelayCommand class if not using a library.
-
-// RelayCommand.cs
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
-public class RelayCommand : ICommand
+namespace PatientApp
 {
-    private readonly Action _execute;
-    private readonly Func<bool> _canExecute;
-
-    public RelayCommand(Action execute, Func<bool> canExecute = null)
+    /// <summary>
+    /// Interaction logic for PatientDashboardControl.xaml
+    /// </summary>
+    public partial class PatientDashboardControl : UserControl
     {
-        _execute = execute;
-        _canExecute = canExecute;
-    }
-
-    public bool CanExecute(object parameter) => _canExecute == null || _canExecute();
-    public void Execute(object parameter) => _execute();
-    public event EventHandler CanExecuteChanged;
-}
-
-Step 8: Event Handling and Notification
-
-In PatientDashboard.xaml.cs, listen for appointment confirmation notifications.
-
-// Views/PatientDashboard.xaml.cs
-public partial class PatientDashboard : UserControl
-{
-    public PatientDashboard(PatientViewModel viewModel)
-    {
-        InitializeComponent();
-        DataContext = viewModel;
-
-        viewModel.AppointmentConfirmed += OnAppointmentConfirmed;
-    }
-
-    private void OnAppointmentConfirmed(object sender, string message)
-    {
-        MessageBox.Show(message, "Appointment Confirmed");
+        private PatientViewModel _viewModel;
+        
+        public PatientDashboardControl(PatientViewModel viewModel)
+        {
+            InitializeComponent();
+            _viewModel = viewModel;
+            DataContext = _viewModel;
+        }
     }
 }
-
-Step 9: Configure Data Binding and EventHandler
-
-Bind the data to display in DataGrid after registration.
-
-<!-- Views/PatientDashboard.xaml -->
-<DataGrid ItemsSource="{Binding Patients}" AutoGenerateColumns="True" />
-
-Step 10: Testing and Finalization
-
-Now, launch the application, register a patient, and confirm the appointment to see data in the dashboard.
-
