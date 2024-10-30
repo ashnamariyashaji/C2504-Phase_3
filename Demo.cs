@@ -471,4 +471,59 @@ namespace PatientApp
         }
     }
 }
-    
+    -------------++++++++
+using System;
+using System.Windows;
+using System.Windows.Controls;
+
+namespace PatientApp
+{
+    public partial class PatientRegControl : UserControl
+    {
+        private PatientViewModel _viewModel;
+        public event Action NavigateToAppointment;
+
+        public PatientRegControl(PatientViewModel viewModel)
+        {
+            InitializeComponent();
+            _viewModel = viewModel;
+        }
+
+        private void btnRegister_Click(object sender, RoutedEventArgs e)
+        {
+            // Input Validation
+            if (string.IsNullOrWhiteSpace(NameTextBox.Text) || 
+                !int.TryParse(AgeTextBox.Text, out int age) || 
+                DOBPicker.SelectedDate == null || 
+                string.IsNullOrWhiteSpace(AddressTextBox.Text) || 
+                SlotComboBox.SelectedItem == null)
+            {
+                MessageBox.Show("Please fill in all fields correctly.", "Input Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            try
+            {
+                var patient = new Patient
+                {
+                    Name = NameTextBox.Text,
+                    Age = age,
+                    DateOfBirth = DOBPicker.SelectedDate.Value,
+                    Address = AddressTextBox.Text,
+                    Slot = (SlotComboBox.SelectedItem as ComboBoxItem)?.Content.ToString() ?? "Not Specified",
+                    BookingDate = DateTime.Now
+                };
+
+                _viewModel.RegisterPatient(patient);
+
+                // Trigger navigation to appointment confirmation
+                NavigateToAppointment?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while registering the patient: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+}
+        
