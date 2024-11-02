@@ -377,3 +377,41 @@ namespace PatientManagementApp
         }
     }
 }
+
+
+
+
+
+public void ShowMainMenu()
+{
+    ContentArea.Content = null; // Clear the current content
+    ContentArea.Content = new StackPanel
+    {
+        Orientation = Orientation.Horizontal,
+        HorizontalAlignment = HorizontalAlignment.Center,
+        VerticalAlignment = VerticalAlignment.Top,
+        Margin = new Thickness(10),
+        Children =
+        {
+            new Button
+            {
+                Content = "Register Patient",
+                Command = new RelayCommand(ShowRegistration),
+                Margin = new Thickness(5)
+            },
+            new Button
+            {
+                Content = "Appointment Confirmation",
+                Command = new RelayCommand(ShowAppointmentConfirmation),
+                Margin = new Thickness(5)
+            },
+            new Button
+            {
+                Content = "Patient Dashboard",
+                Command = new RelayCommand(ShowDashboard),
+                Margin = new Thickness(5)
+            }
+        }
+    };
+}
+
