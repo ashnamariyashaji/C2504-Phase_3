@@ -417,6 +417,213 @@ namespace PatientManagementApp
 
 ------------
 
+To achieve the validation requirements you've specified in your WPF application, we can enhance the PatientRegistration class to include real-time validation feedback. Below is the updated code that displays validation messages directly under each input field. The messages will show in red if the input is invalid.
+
+Step 1: Updated XAML Code for PatientRegistration.xaml
+
+Replace the contents of PatientRegistration.xaml with the following code:
+
+<Window x:Class="PatientRegistrationApp.PatientRegistration"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Patient Registration" Height="400" Width="400">
+    <Grid Margin="10">
+        <StackPanel>
+            <TextBlock Text="Patient Registration" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" />
+
+            <TextBlock Text="Name:" />
+            <TextBox x:Name="NameTextBox" Margin="0,0,0,10" TextChanged="NameTextBox_TextChanged" />
+            <TextBlock x:Name="NameErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
+
+            <TextBlock Text="Age:" />
+            <TextBox x:Name="AgeTextBox" Margin="0,0,0,10" TextChanged="AgeTextBox_TextChanged" />
+            <TextBlock x:Name="AgeErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
+
+            <TextBlock Text="Date of Birth:" />
+            <DatePicker x:Name="DOBPicker" SelectedDateChanged="DOBPicker_SelectedDateChanged" Margin="0,0,0,10" />
+            <TextBlock x:Name="DOBErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
+
+            <TextBlock Text="Address:" />
+            <TextBox x:Name="AddressTextBox" Margin="0,0,0,10" />
+
+            <TextBlock Text="Time Slot:" />
+            <ComboBox x:Name="SlotComboBox" Margin="0,0,0,10">
+                <ComboBoxItem Content="Morning" />
+                <ComboBoxItem Content="Evening" />
+            </ComboBox>
+
+            <TextBlock Text="Booking Date:" />
+            <DatePicker x:Name="BookingDatePicker" SelectedDateChanged="BookingDatePicker_SelectedDateChanged" Margin="0,0,0,10" />
+            <TextBlock x:Name="BookingDateErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
+
+            <Button Content="Register" Click="btnRegister_Click" Width="100" />
+        </StackPanel>
+    </Grid>
+</Window>
+
+Step 2: Updated C# Code for PatientRegistration.xaml.cs
+
+Replace the contents of PatientRegistration.xaml.cs with the following code:
+
+using System;
+using System.Linq;
+using System.Windows;
+
+namespace PatientRegistrationApp
+{
+    public partial class PatientRegistration : Window
+    {
+        public PatientRegistration()
+        {
+            InitializeComponent();
+        }
+
+        private void NameTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(NameTextBox.Text) || !NameTextBox.Text.All(char.IsLetter))
+            {
+                NameErrorTextBlock.Text = "Enter name with alphabets only.";
+                NameErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                NameErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void AgeTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(AgeTextBox.Text) || !int.TryParse(AgeTextBox.Text, out int age) || age < 0)
+            {
+                AgeErrorTextBlock.Text = "Enter a valid age (positive integer).";
+                AgeErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                AgeErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void DOBPicker_SelectedDateChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (DOBPicker.SelectedDate == null || DOBPicker.SelectedDate.Value >= DateTime.Now)
+            {
+                DOBErrorTextBlock.Text = "Date of Birth must be less than today.";
+                DOBErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                DOBErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void BookingDatePicker_SelectedDateChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (BookingDatePicker.SelectedDate == null || BookingDatePicker.SelectedDate.Value < DateTime.Now)
+            {
+                BookingDateErrorTextBlock.Text = "Booking Date must be today or later.";
+                BookingDateErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                BookingDateErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void btnRegister_Click(object sender, RoutedEventArgs e)
+        {
+            // Validate all fields before registration
+            if (NameErrorTextBlock.Visibility == Visibility.Visible ||
+                AgeErrorTextBlock.Visibility == Visibility.Visible ||
+                DOBErrorTextBlock.Visibility == Visibility.Visible ||
+                BookingDateErrorTextBlock.Visibility == Visibility.Visible)
+            {
+                MessageBox.Show("Please fix the errors before proceeding.", "Validation Errors", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            // Create a new patient if all validations pass
+            var patient = new Patient
+            {
+                Name = NameTextBox.Text,
+                Age = int.Parse(AgeTextBox.Text),
+                DOB = DOBPicker.SelectedDate.Value,
+                Address = AddressTextBox.Text,
+                Slot = SlotComboBox.Text,
+                BookingDate = BookingDatePicker.SelectedDate.Value,
+                AppointmentDate = DateTime.Now.AddDays(1) // Default to tomorrow
+            };
+
+            // Register the patient (this is where you'd normally save to a database or similar)
+            RegisterPatient(patient);
+
+            // Clear the fields after registration
+            NameTextBox.Clear();
+            AgeTextBox.Clear();
+            DOBPicker.SelectedDate = null;
+            AddressTextBox.Clear();
+            SlotComboBox.SelectedIndex = -1;
+            BookingDatePicker.SelectedDate = null;
+        }
+
+        private void RegisterPatient(Patient patient)
+        {
+            // Logic to register the patient (e.g., save to a database or show a success message)
+            MessageBox.Show($"Patient {patient.Name} registered successfully!", "Registration", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+
+    public class Patient
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public DateTime DOB { get; set; }
+        public string Address { get; set; }
+        public string Slot { get; set; }
+        public DateTime BookingDate { get; set; }
+        public DateTime AppointmentDate { get; set; }
+    }
+}
+
+Explanation of the Code Changes
+
+1. Real-time Validation:
+
+Name Validation: When the user types in the NameTextBox, the NameTextBox_TextChanged method checks if the input contains only letters. If not, an error message appears below the input box in red.
+
+Age Validation: The AgeTextBox_TextChanged method checks for a valid positive integer input. If invalid, it displays an appropriate error message.
+
+DOB Validation: The DOBPicker_SelectedDateChanged method ensures the selected date of birth is before today. If not, an error message is shown.
+
+Booking Date Validation: The BookingDatePicker_SelectedDateChanged method checks that the booking date is today or later. If invalid, it shows an error message.
+
+
+
+2. Visibility Control:
+
+Each error message is managed using Visibility properties (e.g., Visible or Collapsed), ensuring the user sees immediate feedback as they enter data.
+
+
+
+3. Register Button Logic:
+
+Before creating a Patient, the button click handler checks that there are no visible error messages. If any errors are present, it alerts the user to fix them before proceeding.
+
+
+
+
+Running the Application
+
+1. Build and Run: Compile and run your application in Visual Studio.
+
+
+2. Test Input: Enter invalid data to test the validations. Correct the inputs to see how the error messages update in real time.
+
+
+
+This updated implementation meets your requirements by providing instant feedback for each input field, ensuring a more user-friendly experience.
+
+
 
 
 
