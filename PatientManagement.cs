@@ -91,13 +91,13 @@ AppointmentConfirmation.xaml
 <UserControl x:Class="PatientManagementApp.Views.AppointmentConfirmation"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel>
+    <StackPanel Background="AliceBlue" Width="402">
         <TextBlock Text="Appointments to Confirm" FontWeight="Bold" FontSize="16" Margin="10"/>
 
         <DataGrid Name="PatientsGrid" ItemsSource="{Binding Patients}" AutoGenerateColumns="True" 
                   SelectionMode="Single" Height="200" Margin="10"/>
-
-        <Button x:Name="btnApproveAppointment" Content="Give Appointment" Margin="10" Click="btnApproveAppointment_Click"/>
+        <Button x:Name="btnApproveAppointment" Content="Give Appointment" Click="btnApproveAppointment_Click" Width="138" />
+        <Button x:Name="btnBackToMain" Content="Cancel"  Width="57" HorizontalAlignment="Right"/>
     </StackPanel>
 </UserControl>
 
@@ -358,11 +358,11 @@ namespace PatientManagementApp
             InitializeComponent();
             _viewModel.PatientRegistered += OnPatientRegistered;
             _viewModel.AppointmentConfirmed += OnAppointmentConfirmed;
+       
         }
 
         private void btnShowRegistration_Click(object sender, RoutedEventArgs e)
-        {
-            //NavigationPanel.Visibility = Visibility.Collapsed;
+        { 
             //ContentArea.Content = new Views.PatientRegistration { DataContext = _viewModel };
             var registration = new PatientRegistration { DataContext = _viewModel };
             ContentArea.Content = registration;
@@ -376,7 +376,7 @@ namespace PatientManagementApp
             //ContentArea.Content = new Views.AppointmentConfirmation { DataContext = _viewModel };
             var appointmentConfirmation = new AppointmentConfirmation { DataContext = _viewModel };
             ContentArea.Content = appointmentConfirmation;
-           // NavigationPanel.Visibility = Visibility.Collapsed;
+           NavigationPanel.Visibility = Visibility.Collapsed;
 
         }
 
@@ -386,7 +386,7 @@ namespace PatientManagementApp
             var dashboard = new PatientDashboard { DataContext = _viewModel };
             dashboard.BackToMainRequested += Dasboard_BackToMainRequested;
             ContentArea.Content = dashboard;
-            //NavigationPanel.Visibility = Visibility.Collapsed;
+           NavigationPanel.Visibility = Visibility.Collapsed;
         }
 
         private void Dasboard_BackToMainRequested(object sender, EventArgs e)
@@ -412,6 +412,3 @@ namespace PatientManagementApp
         }
     }
 }
-
-
-
