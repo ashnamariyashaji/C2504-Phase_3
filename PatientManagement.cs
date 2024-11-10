@@ -505,3 +505,68 @@ namespace PatientManagementApp.Views
                 Click="btnGiveAppointment_Click" />
     </Grid>
 </UserControl>
+
+
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+
+namespace YourNamespace
+{
+    public partial class AppointmentConfirmation : UserControl
+    {
+        public AppointmentConfirmation()
+        {
+            InitializeComponent();
+
+            // Call a method to populate the DataGrid
+            LoadAppointments();
+        }
+
+        private void LoadAppointments()
+        {
+            // Sample data for pending appointments
+            var appointments = new List<Appointment>
+            {
+                new Appointment { Name = "John Doe", Age = 30, AppointmentDate = DateTime.Now.AddDays(1) },
+                new Appointment { Name = "Jane Smith", Age = 25, AppointmentDate = DateTime.Now.AddDays(2) },
+                new Appointment { Name = "Sam Wilson", Age = 40, AppointmentDate = DateTime.Now.AddDays(3) }
+            };
+
+            // Manually add rows to the DataGrid
+            foreach (var appointment in appointments)
+            {
+                PendingAppointmentsDataGrid.Items.Add(new
+                {
+                    Name = appointment.Name,
+                    Age = appointment.Age,
+                    AppointmentDate = appointment.AppointmentDate.ToString("MM/dd/yyyy")
+                });
+            }
+        }
+
+        private void btnGiveAppointment_Click(object sender, RoutedEventArgs e)
+        {
+            // Handle the appointment confirmation here
+            if (PendingAppointmentsDataGrid.SelectedItem != null)
+            {
+                var selectedAppointment = PendingAppointmentsDataGrid.SelectedItem;
+                MessageBox.Show("Appointment confirmed for: " + selectedAppointment);
+            }
+            else
+            {
+                MessageBox.Show("Please select an appointment to confirm.");
+            }
+        }
+    }
+
+    // Appointment class definition for sample data
+    public class Appointment
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public DateTime AppointmentDate { get; set; }
+    }
+}
+
