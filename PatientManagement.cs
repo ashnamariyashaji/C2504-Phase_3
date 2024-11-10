@@ -461,4 +461,47 @@ namespace PatientManagementApp.Views
         }
     }
 }
+
+-----------
+
+    <UserControl x:Class="YourNamespace.AppointmentConfirmation"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="400" d:DesignWidth="600">
     
+    <Grid>
+        <!-- Title -->
+        <TextBlock Text="Appointment Confirmation"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Top"
+                   Margin="0,10,0,20" />
+
+        <!-- DataGrid for Pending Appointments -->
+        <DataGrid x:Name="PendingAppointmentsDataGrid"
+                  AutoGenerateColumns="False"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  Margin="20,50,20,70">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Width="*"/>
+                <DataGridTextColumn Header="Age" Width="*"/>
+                <DataGridTextColumn Header="Appointment Date" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Approve Appointment Button -->
+        <Button x:Name="btnGiveAppointment"
+                Content="Approve Appointment"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,20"
+                Width="200"
+                Height="40"
+                Click="btnGiveAppointment_Click" />
+    </Grid>
+</UserControl>
