@@ -415,6 +415,12 @@ namespace PatientManagementApp
 
 
 
+
+
+
+
+
+
 ------------
 
 <DataGrid Name="PatientsGrid" 
@@ -426,3 +432,30 @@ namespace PatientManagementApp
           SelectionChanged="PatientsGrid_SelectionChanged" 
           MouseDoubleClick="PatientsGrid_MouseDoubleClick"/>
 
+
+
+
+
+// SelectionChanged Event
+private void PatientsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+{
+    if (PatientsGrid.SelectedItem is Patient selectedPatient)
+    {
+        MessageBox.Show($"Patient selected: {selectedPatient.Name}");
+        // You can perform additional logic here with selectedPatient
+    }
+}
+
+// MouseDoubleClick Event
+private void PatientsGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+{
+    if (PatientsGrid.SelectedItem is Patient selectedPatient)
+    {
+        var viewModel = DataContext as PatientViewModel;
+        if (viewModel != null)
+        {
+            viewModel.ApproveAppointment(selectedPatient);
+            MessageBox.Show($"Appointment for {selectedPatient.Name} approved on double-click!");
+        }
+    }
+}
