@@ -412,3 +412,17 @@ namespace PatientManagementApp
         }
     }
 }
+
+
+
+------------
+
+<DataGrid Name="PatientsGrid" 
+          ItemsSource="{Binding Patients}" 
+          AutoGenerateColumns="True" 
+          SelectionMode="Single" 
+          Height="200" 
+          Margin="10" 
+          SelectionChanged="PatientsGrid_SelectionChanged" 
+          MouseDoubleClick="PatientsGrid_MouseDoubleClick"/>
+
