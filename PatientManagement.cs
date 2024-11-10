@@ -412,3 +412,53 @@ namespace PatientManagementApp
         }
     }
 }
+_____&&&&&&
+using System.Windows;
+using System.Windows.Controls;
+using PatientManagementApp.Model;
+using PatientManagementApp.ViewModel;
+
+namespace PatientManagementApp.Views
+{
+    public partial class AppointmentConfirmation : UserControl
+    {
+        private PatientViewModel _viewModel;
+
+        public AppointmentConfirmation()
+        {
+            InitializeComponent();
+            Loaded += AppointmentConfirmation_Loaded;
+        }
+
+        private void AppointmentConfirmation_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is PatientViewModel viewModel)
+            {
+                _viewModel = viewModel;
+                LoadPatients();
+            }
+        }
+
+        private void LoadPatients()
+        {
+            PatientsGrid.Items.Clear();
+            foreach (var patient in _viewModel.Patients)
+            {
+                PatientsGrid.Items.Add(patient);
+            }
+        }
+
+        private void btnApproveAppointment_Click(object sender, RoutedEventArgs e)
+        {
+            if (PatientsGrid.SelectedItem is Patient selectedPatient)
+            {
+                _viewModel.ApproveAppointment(selectedPatient);
+                MessageBox.Show($"Appointment for {selectedPatient.Name} approved!");
+
+                // Refresh the DataGrid after approval if needed
+                PatientsGrid.Items.Remove(selectedPatient);
+            }
+        }
+    }
+}
+    
