@@ -83,7 +83,6 @@ namespace PatientManagementApp.ViewModel
 
 
 
-
 //Views
 
 AppointmentConfirmation.xaml
@@ -91,15 +90,15 @@ AppointmentConfirmation.xaml
 <UserControl x:Class="PatientManagementApp.Views.AppointmentConfirmation"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel Background="AliceBlue" Width="402">
+    <StackPanel Background="AliceBlue" Width="643" Height="444">
         <TextBlock Text="Appointments to Confirm" FontWeight="Bold" FontSize="16" Margin="10"/>
 
         <DataGrid Name="PatientsGrid" ItemsSource="{Binding Patients}" AutoGenerateColumns="True" 
-                  SelectionMode="Single" Height="200" Margin="10"/>
+                  SelectionMode="Single" Height="229" Margin="10"/>
         <Button x:Name="btnApproveAppointment" Content="Give Appointment" Click="btnApproveAppointment_Click" Width="138" />
-        <Button x:Name="btnBackToMain" Content="Cancel"  Width="57" HorizontalAlignment="Right"/>
     </StackPanel>
 </UserControl>
+
 
 
 AppointmentConfirmation.xaml.cs
@@ -140,9 +139,14 @@ namespace PatientManagementApp.Views
                 viewModel.ApproveAppointment(selectedPatient);
                 MessageBox.Show($"Appointment for {selectedPatient.Name} approved!");
             }
+            else
+            {
+                MessageBox.Show("Please Select patient details");
+            }
         }
     }
 }
+
 
 
 PatientDashboard.xaml
@@ -150,10 +154,11 @@ PatientDashboard.xaml
 <UserControl x:Class="PatientManagementApp.Views.PatientDashboard"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel Background="AliceBlue">
+    <StackPanel >
         <TextBlock Text="Approved Appointments" FontWeight="Bold" FontSize="16" Margin="10"/>
 
         <DataGrid ItemsSource="{Binding ApprovedAppointments}" AutoGenerateColumns="True" Height="200" Margin="10"/>
+
         <Button x:Name="btnBackToMain" Content="Exit" Click="btnBackToMain_Click" Width="57" HorizontalAlignment="Right"/>
     </StackPanel>
 </UserControl>
@@ -205,38 +210,41 @@ PatientRegistration.xaml
 <UserControl x:Class="PatientManagementApp.Views.PatientRegistration"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid>
-        <Border HorizontalAlignment="Center" VerticalAlignment="Center" BorderBrush="Gray" BorderThickness="2" Padding="20" Width="273">
+    <Grid Width="383">
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center" BorderBrush="Gray" BorderThickness="2" Padding="20" Width="363">
             <StackPanel>
-                <TextBlock Text="Patient Registration" FontSize="20" FontWeight="Bold" TextAlignment="Center" Margin="0,0,0,20"/>
+                <TextBlock Text="Patient Registration" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" />
 
-                <TextBlock Text="Name" Margin="0,10,0,5"/>
-                <TextBox Name="NameTextBox"/>
+                <TextBlock Text="Name:" />
+                <TextBox x:Name="NameTextBox" Margin="0,0,0,10" TextChanged="NameTextBox_TextChanged" />
+                <TextBlock x:Name="NameErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
 
-                <TextBlock Text="Age" Margin="0,10,0,5"/>
-                <TextBox Name="AgeTextBox"/>
+                <TextBlock Text="Age:" />
+                <TextBox x:Name="AgeTextBox" Margin="0,0,0,10" TextChanged="AgeTextBox_TextChanged" />
+                <TextBlock x:Name="AgeErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
 
-                <TextBlock Text="Date of Birth" Margin="0,10,0,5"/>
-                <DatePicker Name="DOBPicker"/>
+                <TextBlock Text="Date of Birth:" />
+                <DatePicker x:Name="DOBPicker" SelectedDateChanged="DOBPicker_SelectedDateChanged" Margin="0,0,0,10" />
+                <TextBlock x:Name="DOBErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
 
-                <TextBlock Text="Address" Margin="0,10,0,5"/>
-                <TextBox Name="AddressTextBox"/>
+                <TextBlock Text="Address:" />
+                <TextBox x:Name="AddressTextBox" Margin="0,0,0,10" />
 
-                <TextBlock Text="Slot (Morning/Evening)" Margin="0,10,0,5"/>
-                <ComboBox Name="SlotComboBox">
-                    <ComboBoxItem Content="Morning"/>
-                    <ComboBoxItem Content="Evening"/>
+                <TextBlock Text="Time Slot:" />
+                <ComboBox x:Name="SlotComboBox" Margin="0,0,0,10">
+                    <ComboBoxItem Content="Morning" />
+                    <ComboBoxItem Content="Evening" />
                 </ComboBox>
 
-                <TextBlock Text="Booking Date" Margin="0,10,0,5"/>
-                <DatePicker Name="BookingDatePicker"/>
+                <TextBlock Text="Booking Date:" />
+                <DatePicker x:Name="BookingDatePicker" SelectedDateChanged="BookingDatePicker_SelectedDateChanged" Margin="0,0,0,10" />
+                <TextBlock x:Name="BookingDateErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
 
-                <Button x:Name="btnRegister" Content="Register" Margin="0,20,0,0" Click="btnRegister_Click"/>
+                <Button Content="Register" Click="btnRegister_Click" Width="100" />
             </StackPanel>
         </Border>
     </Grid>
 </UserControl>
-
 
 PatientRegistration.xaml.cs
 -----------------------------------------
@@ -269,6 +277,57 @@ namespace PatientManagementApp.Views
         {
             InitializeComponent();
         }
+        private void NameTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(NameTextBox.Text) || !NameTextBox.Text.All(char.IsLetter))
+            {
+                NameErrorTextBlock.Text = "Enter name with alphabets only.";
+                NameErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                NameErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void AgeTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(AgeTextBox.Text) || !int.TryParse(AgeTextBox.Text, out int age) || age < 0)
+            {
+                AgeErrorTextBlock.Text = "Enter a valid age (positive integer).";
+                AgeErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                AgeErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void DOBPicker_SelectedDateChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (DOBPicker.SelectedDate == null || DOBPicker.SelectedDate.Value >= DateTime.Now)
+            {
+                DOBErrorTextBlock.Text = "Date of Birth must be less than today.";
+                DOBErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                DOBErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void BookingDatePicker_SelectedDateChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (BookingDatePicker.SelectedDate == null || BookingDatePicker.SelectedDate.Value < DateTime.Now)
+            {
+                BookingDateErrorTextBlock.Text = "Booking Date must be today or later.";
+                BookingDateErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                BookingDateErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
 
         private void btnRegister_Click(object sender, RoutedEventArgs e)
         {
@@ -286,12 +345,12 @@ namespace PatientManagementApp.Views
                 };
                 viewModel.RegisterPatient(patient);
 
-                NameTextBox.Clear();
-                AgeTextBox.Clear();
-                DOBPicker.SelectedDate = null;
-                AddressTextBox.Clear();
-                SlotComboBox.SelectedIndex = -1;
-                BookingDatePicker.SelectedDate = null;  
+                //NameTextBox.Clear();
+                //AgeTextBox.Clear();
+                //DOBPicker.SelectedDate = null;
+                //AddressTextBox.Clear();
+                //SlotComboBox.SelectedIndex = -1;
+                //BookingDatePicker.SelectedDate = null;  
 
 
                 //var mainwindow = Window.GetWindow(this) as MainWindow;
@@ -302,8 +361,10 @@ namespace PatientManagementApp.Views
 }
 
 
+
 MainWindow.xaml
 ---------------------------
+
 <Window x:Class="PatientManagementApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -313,10 +374,10 @@ MainWindow.xaml
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <StackPanel x:Name="NavigationPanel" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10">
-            <Button x:Name="btnShowRegistration" Content="Register Patient" Margin="5" Click="btnShowRegistration_Click"/>
-            <Button x:Name="btnShowAppointmentConfirmation" Content="Appointment Confirmation" Margin="5" Click="btnShowAppointmentConfirmation_Click"/>
-            <Button x:Name="btnShowDashboard" Content="Patient Dashboard" Margin="5" Click="btnShowDashboard_Click"/>
+        <StackPanel x:Name="NavigationPanel" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
+            <Button x:Name="btnShowRegistration" Content="Register Patient" Margin="10 20" Click="btnShowRegistration_Click"/>
+            <Button x:Name="btnShowAppointmentConfirmation" Content="Appointment Confirmation" Margin="10 20" Click="btnShowAppointmentConfirmation_Click"/>
+            <Button x:Name="btnShowDashboard" Content="Patient Dashboard" Margin="10 20" Click="btnShowDashboard_Click"/>
         </StackPanel>
 
         <ContentControl Name="ContentArea" Grid.Row="1" Margin="10"/>
@@ -376,7 +437,7 @@ namespace PatientManagementApp
             //ContentArea.Content = new Views.AppointmentConfirmation { DataContext = _viewModel };
             var appointmentConfirmation = new AppointmentConfirmation { DataContext = _viewModel };
             ContentArea.Content = appointmentConfirmation;
-           NavigationPanel.Visibility = Visibility.Collapsed;
+           NavigationPanel.Visibility = Visibility.Visible;
 
         }
 
@@ -412,7 +473,6 @@ namespace PatientManagementApp
         }
     }
 }
-
 
 
 
