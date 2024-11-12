@@ -14,14 +14,16 @@ namespace PatientManagementApp.Model
     {
         public string Name { get; set; }
         public int Age { get; set; }
-        public DateTime DOB { get; set; }
+        //public DateTime DOB { get; set; }
+        public string DOB { get; set; }
         public string Address { get; set; }
         public string Slot { get; set; } // Morning or Evening
         public DateTime BookingDate { get; set; }
-        public DateTime AppointmentDate { get; set; }
-        public string MedicalRecord { get; set; }
+        public string AppointmentDate { get; set; }
+   
     }
 }
+
 
 
 //ViewModel
@@ -248,7 +250,6 @@ PatientRegistration.xaml
 
 PatientRegistration.xaml.cs
 -----------------------------------------
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -337,28 +338,22 @@ namespace PatientManagementApp.Views
                 {
                     Name = NameTextBox.Text,
                     Age = int.Parse(AgeTextBox.Text),
-                    DOB = DOBPicker.SelectedDate ?? DateTime.Now,
+                    //DOB = DOBPicker.SelectedDate ?? DateTime.Now,
+                    DOB = DOBPicker.SelectedDate.HasValue ? DOBPicker.SelectedDate.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd"),
                     Address = AddressTextBox.Text,
                     Slot = SlotComboBox.Text,
-                    BookingDate = BookingDatePicker.SelectedDate ?? DateTime.Now,
-                    AppointmentDate = DateTime.Now.AddDays(1) // Default to tomorrow
+                    //AppointmentDate = BookingDatePicker.SelectedDate ?? DateTime.Now,
+                    AppointmentDate = BookingDatePicker.SelectedDate.HasValue ? BookingDatePicker.SelectedDate.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd"),
+                    BookingDate = DateTime.Now
                 };
                 viewModel.RegisterPatient(patient);
 
-                //NameTextBox.Clear();
-                //AgeTextBox.Clear();
-                //DOBPicker.SelectedDate = null;
-                //AddressTextBox.Clear();
-                //SlotComboBox.SelectedIndex = -1;
-                //BookingDatePicker.SelectedDate = null;  
-
-
-                //var mainwindow = Window.GetWindow(this) as MainWindow;
-                //mainwindow?.NavigateToMaainMenu();
+            
             }
         }
     }
 }
+
 
 
 
