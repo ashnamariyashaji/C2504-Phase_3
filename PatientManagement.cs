@@ -469,24 +469,3 @@ namespace PatientManagementApp
     }
 }
 
-
-
-
-------------------------
-
-PatientRegistration
-        var registration = new PatientRegistration();
-
-        // Create instances of AppointmentConfirmation and PatientDashboard, passing the registration instance
-        var appointmentConfirmation = new AppointmentConfirmation(registration);
-        var patientDashboard = new PatientDashboard(registration);
-
-        // Register a patient
-        registration.RegisterPatient("John Doe");
-    }
-}
-
-
-
-
-
