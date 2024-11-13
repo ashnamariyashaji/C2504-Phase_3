@@ -45,3 +45,35 @@ for /d %%D in ("%BACKUP_ROOT%\*") do (
 
 echo Backup completed successfully!
 pause
+
+
+
+---------------------------------
+# Set the source and backup directories
+$sourceDir = "C:\TestFiles"
+$backupDir = "D:\Backups"
+$backupDate = Get-Date -Format "yyyyMMdd"
+$backupPath = Join-Path -Path $backupDir -ChildPath $backupDate
+$logFile = Join-Path -Path $backupPath -ChildPath "backup_log.txt"
+
+# Create the backup directory if it doesn't exist
+if (!(Test-Path -Path $backupPath)) {
+    New-Item -ItemType Directory -Path $backupPath
+}
+
+# Copy files from the source to the backup directory
+$filesCopied = Copy-Item -Path "$sourceDir\*" -Destination $backupPath -Recurse -PassThru
+
+# Log the date, time, and number of files copied
+$logEntry = "Backup Date and Time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" + "`r`n"
+$logEntry += "Number of Files Copied: $($filesCopied.Count)" + "`r`n"
+
+Add-Content -Path $logFile -Value $logEntry
+
+# Cleanup old backup directories (older than 7 days)
+$sevenDaysAgo = (Get-Date).AddDays(-7)
+Get-ChildItem -Path $backupDir | Where-Object {
+    $_.PSIsContainer -and ($_.Name -match '^\d{8}$') -and
+    ([datetime]::ParseExact($_.Name, 'yyyyMMdd', $null) -lt $sevenDaysAgo)
+} | Remove-Item -Recurse -Force
+
