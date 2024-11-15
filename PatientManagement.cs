@@ -1043,8 +1043,63 @@ namespace PatientManagementApp.ViewModel
         ObservableCollection<Patient> Patients { get; }
         void RegisterPatient(Patient patient);
     }
-}
 
+
+
+
+    ###########
+
+    using System.Windows;
+using PatientManagementApp1.Models;
+using PatientManagementApp1.UserControls;
+
+namespace PatientManagementApp1.ViewModels
+{
+    public class MainWindowViewModel
+    {
+        public void ShowRegistration(MainWindow window)
+        {
+            var registrationViewModel = new PatientRegistrationViewModel();
+            var registration = new PatientRegistration { DataContext = registrationViewModel };
+
+            registration.PatientRegistered += (s, patient) =>
+            {
+                MessageBox.Show($"Patient {patient.Name} registered successfully!");
+                // Optionally navigate to another view
+            };
+
+            window.ContentArea.Content = registration;
+        }
+
+        public void ShowAppointmentConfirmation(MainWindow window)
+        {
+            var appointmentConfirmationViewModel = new AppointmentConfirmationViewModel();
+            var appointmentConfirmation = new AppointmentConfirmation { DataContext = appointmentConfirmationViewModel };
+
+            appointmentConfirmation.AppointmentApproved += (s, patient) =>
+            {
+                MessageBox.Show($"Appointment for {patient.Name} approved!");
+                // Optionally navigate to another view
+            };
+
+            window.ContentArea.Content = appointmentConfirmation;
+        }
+
+        public void ShowDashboard(MainWindow window)
+        {
+            var dashboardViewModel = new PatientDashboardViewModel();
+            var dashboard = new PatientDashboard { DataContext = dashboardViewModel };
+            dashboard.BackToMainRequested += (s, e) => NavigateBackToMainScreen(window);
+            window.ContentArea.Content = dashboard;
+        }
+
+        private void NavigateBackToMainScreen(MainWindow window)
+        {
+            window.ContentArea.Content = null;
+            window.NavigationPanel.Visibility = Visibility.Visible;
+        }
+    }
+}
 
 
 
