@@ -563,3 +563,13 @@ UserControl x:Class="PatientManagementApp1.UserControls.PatientRegistration"
     </Grid>
 </UserControl>
 
+
+MianWindow
+-------------------
+ <Grid>
+     <StackPanel x:Name="NavigationPanel" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
+         <Button x:Name="btnShowRegistration" Content="Register Patient" Margin="10 20" Click="btnShowRegistration_Click"/>
+         <Button x:Name="btnShowAppointmentConfirmation" Content="Appointment Confirmation" Margin="10 20" Click="btnShowAppointmentConfirmation_Click"/>
+         <Button x:Name="btnShowDashboard" Content="Patient Dashboard" Margin="10 20" Click="btnShowDashboard_Click"/>
+     </StackPanel>
+
