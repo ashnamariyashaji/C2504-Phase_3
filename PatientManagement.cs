@@ -995,6 +995,61 @@ namespace PatientManagementApp1
 
 
 
+//Model
+
+Patient.cs
+-----------
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PatientManagementApp.Model
+{
+    public class Patient
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        //public DateTime DOB { get; set; }
+        public string DOB { get; set; }
+        public string Address { get; set; }
+        public string Slot { get; set; } // Morning or Evening
+        public DateTime BookingDate { get; set; }
+        public string AppointmentDate { get; set; }
+   
+    }
+}
+
+
+
+//ViewModel
+
+IPatientViewModel.cs
+--------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using PatientManagementApp.Model;
+
+namespace PatientManagementApp.ViewModel
+{
+    public interface IPatientViewModel
+    {
+        ObservableCollection<Patient> Patients { get; }
+        void RegisterPatient(Patient patient);
+    }
+}
+
+
+
+
+
+
 
 
              
