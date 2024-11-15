@@ -573,3 +573,429 @@ MianWindow
          <Button x:Name="btnShowDashboard" Content="Patient Dashboard" Margin="10 20" Click="btnShowDashboard_Click"/>
      </StackPanel>
 
+
+
+    AppointmentConfirmation.xaml.cs
+    using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using PatientManagementApp1.Models;
+using PatientManagementApp1.ViewModels;
+
+namespace PatientManagementApp1.UserControls
+{
+    /// <summary>
+    /// Interaction logic for AppointmentConfirmation.xaml
+    /// </summary>
+    public partial class AppointmentConfirmation : UserControl
+    {
+        public AppointmentConfirmation()
+        {
+            InitializeComponent();
+        }
+
+        private void btnApproveAppointment_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is AppointmentConfirmationViewModel viewModel && PatientsGrid.SelectedItem is Patient selectedPatient)
+            {
+                viewModel.ApproveAppointment(selectedPatient);
+                MessageBox.Show($"Appointment for {selectedPatient.Name} approved!");
+            }
+            else
+            {
+                MessageBox.Show("Please Select patient details");
+            }
+        }
+    }
+}
+
+
+PatientDashboard.xaml.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace PatientManagementApp1.UserControls
+{
+    /// <summary>
+    /// Interaction logic for PatientDashboard.xaml
+    /// </summary>
+    public partial class PatientDashboard : UserControl
+    {
+        public event EventHandler BackToMainRequested;
+
+        public PatientDashboard()
+        {
+            InitializeComponent();
+        }
+
+        private void btnBackToMain_Click(object sender, RoutedEventArgs e)
+        {
+            BackToMainRequested?.Invoke(this, EventArgs.Empty);
+        }
+    }
+}
+
+
+PatientRegistration.xaml.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using PatientManagementApp1.Models;
+using PatientManagementApp1.ViewModels;
+
+namespace PatientManagementApp1.UserControls
+{
+    /// <summary>
+    /// Interaction logic for PatientRegistration.xaml
+    /// </summary>
+    public partial class PatientRegistration : UserControl
+    {
+
+    public event EventHandler<EventArgs> PaientRegistered;
+        public PatientRegistration()
+        {
+            InitializeComponent();
+        }
+
+        private void NameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(NameTextBox.Text) || !NameTextBox.Text.All(char.IsLetter))
+            {
+                NameErrorTextBlock.Text = "Enter name with alphabets only.";
+                NameErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                NameErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void AgeTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(AgeTextBox.Text) || !int.TryParse(AgeTextBox.Text, out int age) || age < 0)
+            {
+                AgeErrorTextBlock.Text = "Enter a valid age (positive integer).";
+                AgeErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                AgeErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void DOBPicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (DOBPicker.SelectedDate == null || DOBPicker.SelectedDate.Value >= DateTime.Now)
+            {
+                DOBErrorTextBlock.Text = "Date of Birth must be less than today.";
+                DOBErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                DOBErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void BookingDatePicker_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (BookingDatePicker.SelectedDate == null || BookingDatePicker.SelectedDate.Value < DateTime.Now)
+            {
+                BookingDateErrorTextBlock.Text = "Booking Date must be today or later.";
+                BookingDateErrorTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                BookingDateErrorTextBlock.Visibility = Visibility.Collapsed;
+            }
+        }
+
+       
+
+        private void Registration_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is PatientRegistrationViewModel viewModel)
+            {
+                var patient = new Patient
+                {
+                    Name = NameTextBox.Text,
+                    Age = int.Parse(AgeTextBox.Text),
+                    DOB = DOBPicker.SelectedDate.HasValue ? DOBPicker.SelectedDate.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd"),
+                    Address = AddressTextBox.Text,
+                    Slot = SlotComboBox.Text,
+                    BookingDate = BookingDatePicker.SelectedDate.HasValue ? BookingDatePicker.SelectedDate.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd"),
+                };
+                viewModel.RegisterPatient(patient);
+
+            }
+        }
+    }
+}
+
+
+viewmodels
+
+-------------
+appointmentconfirmation.cs
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using PatientManagementApp1.Interfaces;
+using PatientManagementApp1.Models;
+
+namespace PatientManagementApp1.ViewModels
+{
+    public class AppointmentConfirmationViewModel : IPatientViewModel
+    {
+        public ObservableCollection<Patient> Patients { get; } = new ObservableCollection<Patient>();
+        public ObservableCollection<Patient> ApprovedAppointments { get; } = new ObservableCollection<Patient>();
+
+        public void RegisterPatient(Patient patient)
+        {
+            Patients.Add(patient);
+        }
+
+        public void ApproveAppointment(Patient patient)
+        {
+            ApprovedAppointments.Add(patient);
+            // Raise an event or perform additional logic if needed
+        }
+    }
+}
+
+
+
+Mainwindowviewmodel
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using PatientManagementApp1.Models;
+using PatientManagementApp1.UserControls;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+
+namespace PatientManagementApp1.ViewModels
+{
+    public class MainWindowViewModel
+    {
+        private readonly MainWindowViewModel _viewModel;
+        
+        public void ShowRegistration(MainWindow window)
+        {
+            var registrationViewModel = new PatientRegistrationViewModel();
+            var registration = new PatientRegistration { DataContext = registrationViewModel };
+           
+            window.ContentArea.Content = registration;
+        }
+
+        public void ShowAppointmentConfirmation(MainWindow window)
+        {
+            var appointmentConfirmationViewModel = new AppointmentConfirmationViewModel();
+            var appointmentConfirmation = new AppointmentConfirmation { DataContext = appointmentConfirmationViewModel };
+            
+            window.ContentArea.Content = appointmentConfirmation;
+        }
+
+        public void ShowDashboard(MainWindow window)
+        {
+            var dashboardViewModel = new PatientDashboardViewModel();
+            var dashboard = new PatientDashboard { DataContext = dashboardViewModel };
+            dashboard.BackToMainRequested += (s, e) => NavigateBackToMainScreen(window);
+            window.ContentArea.Content = dashboard;
+        }
+
+        private void NavigateBackToMainScreen(MainWindow window)
+        {
+            window.ContentArea.Content = null;
+            window.NavigationPanel.Visibility = Visibility.Visible;
+        }
+
+        //private void OnPatientRegistered(object sender, PatientManagementApp1.Models.Patient patient)
+        //{
+        //    _viewModel.PatientRegistered += OnPatientRegistered;
+        //    MessageBox.Show($"Patient {patient.Name} registered successfully!");
+            
+        //   // NavigateBackToMainScreen();
+        //}
+
+
+    }
+}
+
+
+
+PatientDashboard
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using PatientManagementApp1.Interfaces;
+using PatientManagementApp1.Models;
+
+namespace PatientManagementApp1.ViewModels
+{
+    public class PatientDashboardViewModel : IPatientViewModel
+    {
+        public ObservableCollection<Patient> Patients { get; } = new ObservableCollection<Patient>();
+        public ObservableCollection<Patient> ApprovedAppointments { get; } = new ObservableCollection<Patient>();
+
+        public void RegisterPatient(Patient patient)
+        {
+            Patients.Add(patient);
+        }
+
+        public void ApproveAppointment(Patient patient)
+        {
+            ApprovedAppointments.Add(patient);
+        }
+    }
+}
+
+
+PatientRegistration
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using PatientManagementApp1.Interfaces;
+using PatientManagementApp1.Models;
+
+namespace PatientManagementApp1.ViewModels
+{
+    public class PatientRegistrationViewModel : IPatientViewModel
+    {
+
+        public ObservableCollection<Patient> Patients { get; } = new ObservableCollection<Patient>();
+        public ObservableCollection<Patient> ApprovedAppointments { get; } = new ObservableCollection<Patient>();
+
+        public void RegisterPatient(Patient patient)
+        {
+            Patients.Add(patient);
+          
+        }
+
+        private void OnPatientRegistered(object sender, PatientManagementApp1.Models.Patient patient)
+        {
+            MessageBox.Show($"Patient {patient.Name} registered successfully!");
+            //_viewModel.PatientRegistered += OnPatientRegistered;
+           
+        }
+
+        public void ApproveAppointment(Patient patient)
+        {
+            ApprovedAppointments.Add(patient);
+            
+        }
+    }
+}
+
+
+mainwindow.xaml.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using PatientManagementApp1.Models;
+using PatientManagementApp1.UserControls;
+using PatientManagementApp1.ViewModels;
+
+namespace PatientManagementApp1
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        private readonly MainWindowViewModel _viewModel;
+       
+        public MainWindow()
+        {
+            InitializeComponent();
+            _viewModel = new MainWindowViewModel();
+        }
+
+        
+        private void btnShowRegistration_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ShowRegistration(this);
+        }
+
+        private void btnShowAppointmentConfirmation_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ShowAppointmentConfirmation(this);
+        }
+
+        private void btnShowDashboard_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ShowDashboard(this);
+        }
+    }
+}
+
+
+
+
+
+             
+
