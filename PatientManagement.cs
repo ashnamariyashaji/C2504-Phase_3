@@ -469,3 +469,97 @@ namespace PatientManagementApp
     }
 }
 
+
+
+
+------------------------------------------------------------------------------------------------------------------
+
+Appointment
+
+<UserControl x:Class="PatientManagementApp1.UserControls.AppointmentConfirmation"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PatientManagementApp1.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel Background="AliceBlue" Width="643" Height="444">
+        <TextBlock Text="Appointments to Confirm" FontWeight="Bold" FontSize="16" Margin="10"/>
+
+        <DataGrid Name="PatientsGrid" AutoGenerateColumns="True" 
+                  SelectionMode="Single" Height="229" Margin="10"/>
+        <Button x:Name="btnApproveAppointment" Content="Give Appointment" Width="138" Click="btnApproveAppointment_Click"/>
+    </StackPanel>
+</UserControl>
+
+
+Dashboard
+-------------------
+
+<UserControl x:Class="PatientManagementApp1.UserControls.PatientDashboard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PatientManagementApp1.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel>
+        <TextBlock Text="Approved Appointments" FontWeight="Bold" FontSize="16" Margin="10"/>
+
+        <DataGrid ItemsSource="{Binding ApprovedAppointments}" AutoGenerateColumns="True" Height="200" Margin="10"/>
+
+        <Button x:Name="btnBackToMain" Content="Exit"  Width="57" HorizontalAlignment="Right" Click="btnBackToMain_Click"/>
+    </StackPanel>
+</UserControl>
+
+
+
+Registration
+------------------
+
+UserControl x:Class="PatientManagementApp1.UserControls.PatientRegistration"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PatientManagementApp1.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Width="383">
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center" BorderBrush="Gray" BorderThickness="2" Padding="20" Width="363">
+            <StackPanel>
+                <TextBlock Text="Patient Registration" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" />
+
+                <TextBlock Text="Name:" />
+                <TextBox x:Name="NameTextBox" Margin="0,0,0,10" TextChanged="NameTextBox_TextChanged" />
+                <TextBlock x:Name="NameErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
+
+                <TextBlock Text="Age:" />
+                <TextBox x:Name="AgeTextBox" Margin="0,0,0,10" TextChanged="AgeTextBox_TextChanged" />
+                <TextBlock x:Name="AgeErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
+
+                <TextBlock Text="Date of Birth:" />
+                <DatePicker x:Name="DOBPicker" SelectedDateChanged="DOBPicker_SelectedDateChanged" Margin="0,0,0,10" />
+                <TextBlock x:Name="DOBErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
+
+                <TextBlock Text="Address:" />
+                <TextBox x:Name="AddressTextBox" Margin="0,0,0,10" />
+
+                <TextBlock Text="Time Slot:" />
+                <ComboBox x:Name="SlotComboBox" Margin="0,0,0,10">
+                    <ComboBoxItem Content="Morning" />
+                    <ComboBoxItem Content="Evening" />
+                </ComboBox>
+
+                <TextBlock Text="Booking Date:" />
+                <DatePicker x:Name="BookingDatePicker" SelectedDateChanged="BookingDatePicker_SelectedDateChanged" Margin="0,0,0,10" />
+                <TextBlock x:Name="BookingDateErrorTextBlock" Foreground="Red" Visibility="Collapsed" />
+
+                <Button Content="Register" Width="100" Click="Button_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
+
