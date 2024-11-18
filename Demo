@@ -443,3 +443,37 @@ namespace PatientAdmissionApp
 }
 
 
+
+
+
+
+
+
+
+appointment
+using System.Collections.ObjectModel;
+
+namespace PatientAdmissionApp
+{
+    public class AppointmentControlViewModel : BaseViewModel
+    {
+        public ObservableCollection<PatientModel> Patients { get; set; }
+        public PatientModel SelectedPatient { get; set; }
+
+        public AppointmentControlViewModel()
+        {
+            Patients = new ObservableCollection<PatientModel>();
+        }
+
+        public void UpdateAppointment(PatientModel patient)
+        {
+            if (patient != null)
+            {
+                patient.ConfirmationStatus = "Confirmed";
+                OnPropertyChanged(nameof(Patients));
+            }
+        }
+    }
+}
+
+
