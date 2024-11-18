@@ -1,0 +1,395 @@
+//model
+PatientModel.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PatientAdmissionApp
+{
+    public class PatientModel
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public DateTime Dateofbirth { get; set; } = DateTime.Now;
+        public string Address { get; set; }
+        public string BookingDate { get; set; }
+        public string AppointmentDate { get; set; } 
+        public string ConfirmationStatus { get; set; } = "Pending";
+        public string Slot { get; set; }
+    }
+}
+
+Interface
+IPatient.cs
+
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PatientAdmissionApp
+{
+    public interface IPatient
+    {
+        ObservableCollection<PatientModel> Patients { get; }
+       void RegisterPatient(object parameter);
+       void SendUpdate(object parameter);
+    }
+}
+
+
+usecontrols
+Appointment.xaml.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace PatientAdmissionApp
+{
+    /// <summary>
+    /// Interaction logic for AppointmentControl.xaml
+    /// </summary>
+    public partial class AppointmentControl : UserControl
+    {
+        public AppointmentControl()
+        {
+            InitializeComponent();
+            
+        }
+
+        public void DisplayPatientName(object sender, PatientModel e)
+        {
+            if (e != null)
+            {
+                lblPatientNameLabel.Content = $"  Notified From Registrationpage - {e.Name}";
+            }
+        }
+      
+        private void PatientsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+    }
+}
+
+
+PatientDashboard.xaml.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace PatientAdmissionApp
+{
+    /// <summary>
+    /// Interaction logic for PatientDashboardControl.xaml
+    /// </summary>
+    public partial class PatientDashboardControl : UserControl
+    {
+        public PatientDashboardControl()
+        {
+            InitializeComponent();
+
+        }
+        public void DisplayPatientName(object sender, PatientModel e)
+        {
+            if (e != null)
+            {
+                
+                lblPatientNameLabel3.Content = $" Notified From Registrationpage - {e.Name}";
+            }
+        }
+    }
+}
+
+
+
+PatientRegistration.xaml.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace PatientAdmissionApp
+{
+    /// <summary>
+    /// Interaction logic for PatientRegistrationControl.xaml
+    /// </summary>
+    public partial class PatientRegistrationControl : UserControl
+    {
+        public PatientRegistrationControl()
+        {
+            InitializeComponent();
+            
+        }
+        public void DisplayPatientName(object sender, PatientModel e)
+        {
+            if (e != null)
+            {
+                PatientNameLabel.Content = $"Notification from Registration page - {e.Name}";
+            }
+        }
+
+
+    }
+}
+
+//ViewModels
+
+Baseviewmodel
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using System.ComponentModel;
+
+namespace PatientAdmissionApp
+{
+    public class BaseViewModel : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private object _currentView;
+        public object CurrentView
+        {
+            get { return _currentView; }
+            set { _currentView = value; OnPropertyChanged(nameof(CurrentView)); }
+        }
+    }
+}
+
+
+PatientViewModel.cs
+
+using System;
+using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Input;
+
+namespace PatientAdmissionApp
+{
+    public class PatientViewModel : BaseViewModel, IPatient
+    {
+        private MainWindow _mainWindow;
+
+        public event EventHandler AppointmentUpdated;
+        public event EventHandler PatientRegistered;
+        public event EventHandler<PatientModel> PatientUpdated;
+
+        public ICommand ShowRegistrationCommand { get; set; }
+        public ICommand ShowAppointmentCommand { get; set; }
+        public ICommand ShowDashboardCommand { get; set; }
+        public ICommand ExitCommand { get; set; }
+
+        private PatientRegistrationControl registrationControl;
+        private AppointmentControl appointmentControl;
+        private PatientDashboardControl dashboardControl;
+
+        public ObservableCollection<PatientModel> Patients { get; set; } = new ObservableCollection<PatientModel>();
+        public ObservableCollection<PatientModel> ConfirmedPatients { get; set; } = new ObservableCollection<PatientModel>();
+
+        private PatientModel _newPatient;
+        public PatientModel NewPatient
+        {
+            get { return _newPatient; }
+            set { _newPatient = value; OnPropertyChanged(); }
+        }
+
+        private PatientModel _selectedPatient;
+        public PatientModel SelectedPatient
+        {
+            get { return _selectedPatient; }
+            set { _selectedPatient = value; OnPropertyChanged(); }
+        }
+
+        private bool _selectedSlot;
+        public bool SelectedSlot
+        {
+            get { return _selectedSlot; }
+            set { _selectedSlot = value; OnPropertyChanged(nameof(SelectedSlot)); }
+        }
+       
+        public ICommand RegisterPatientCommand { get; set; }
+        public ICommand SendUpdateCommand { get; set; }
+
+        public PatientViewModel(MainWindow mainWindow)
+        {
+            _mainWindow = mainWindow;
+            NewPatient = new PatientModel();
+            ShowRegistrationCommand = new RelayCommand(ShowRegistration);
+            ShowAppointmentCommand = new RelayCommand(ShowAppointment);
+            ShowDashboardCommand = new RelayCommand(ShowDashboard);
+            ExitCommand = new RelayCommand(Exit);
+
+            // Initialize controls (if needed)
+            registrationControl = new PatientRegistrationControl();
+            appointmentControl = new AppointmentControl();
+            dashboardControl = new PatientDashboardControl();
+
+            RegisterPatientCommand = new RelayCommand(RegisterPatient);
+            SendUpdateCommand = new RelayCommand(SendUpdate);
+
+            PatientUpdated += registrationControl.DisplayPatientName;
+            PatientUpdated += appointmentControl.DisplayPatientName;
+            PatientUpdated += dashboardControl.DisplayPatientName;
+
+            PatientRegistered += OnPatientRegistered;
+            AppointmentUpdated += OnAppointmentUpdated;
+
+        }
+
+        public void RegisterPatient(object parameter)
+        {
+            PatientRegistered?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnPatientRegistered(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(NewPatient.Name) && NewPatient.Dateofbirth != default)
+            {
+                Patients.Add(new PatientModel
+                {
+                    Name = NewPatient.Name,
+                    Dateofbirth = NewPatient.Dateofbirth,
+                    Age = DateTime.Now.Year - NewPatient.Dateofbirth.Year,
+                    Address = NewPatient.Address,
+                    Slot = NewPatient.Slot,
+                    BookingDate = NewPatient.BookingDate
+                });
+                PatientUpdated?.Invoke(this, NewPatient);
+                NewPatient = new PatientModel();
+            }
+            else
+            {
+                MessageBox.Show("Please provide valid patient details.");
+            }
+        }
+
+
+        public void SendUpdate(object parameter)
+        {
+            if (SelectedPatient != null)
+            {
+                SelectedPatient.ConfirmationStatus = NewPatient.ConfirmationStatus;
+                SelectedPatient.AppointmentDate = NewPatient.AppointmentDate;
+                AppointmentUpdated?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                MessageBox.Show("Please select a Patient");
+            }
+        }
+
+        private void OnAppointmentUpdated(object sender, EventArgs e)
+        {
+            if (SelectedPatient != null && !ConfirmedPatients.Contains(SelectedPatient))
+            {
+                ConfirmedPatients.Add(SelectedPatient);
+                MessageBox.Show($"Appointment Confirmed for {SelectedPatient.Name}");
+            }
+        }
+
+        // Command method implementations
+        private void ShowRegistration(object parameter)
+        {
+            // Logic for showing the Registration control
+            // Switch MainContent to Registration control
+            _mainWindow.MainContent.Content = registrationControl;
+        }
+
+        private void ShowAppointment(object parameter)
+        {
+            // Logic for showing the Appointment control
+            // Switch MainContent to Appointment control
+            _mainWindow.MainContent.Content = appointmentControl;
+        }
+
+        private void ShowDashboard(object parameter)
+        {
+            // Logic for showing the Dashboard control
+            // Switch MainContent to Dashboard control
+            _mainWindow.MainContent.Content = dashboardControl;
+        }
+
+        private void Exit(object parameter)
+        {
+            // Logic to handle exit (close window, or some other action)
+            Application.Current.Shutdown();
+        }
+
+    }
+}
+
+
+
+views
+
+MainWindow.xaml.cs
+
+using System.Windows;
+
+namespace PatientAdmissionApp
+{
+    public partial class MainWindow : Window
+    {
+        private PatientViewModel _viewModel;
+      
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            _viewModel = new PatientViewModel(this);
+            DataContext = _viewModel;
+        }
+    }
+}
+
+
+
