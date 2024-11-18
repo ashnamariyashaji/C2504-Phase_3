@@ -477,3 +477,31 @@ namespace PatientAdmissionApp
 }
 
 
+
+
+******
+
+using System.Collections.ObjectModel;
+
+namespace PatientAdmissionApp
+{
+    public class PatientDashboardViewModel : BaseViewModel
+    {
+        public ObservableCollection<PatientModel> ConfirmedPatients { get; set; }
+
+        public PatientDashboardViewModel()
+        {
+            ConfirmedPatients = new ObservableCollection<PatientModel>();
+        }
+
+        public void AddConfirmedPatient(PatientModel patient)
+        {
+            if (patient != null && !ConfirmedPatients.Contains(patient))
+            {
+                ConfirmedPatients.Add(patient);
+                OnPropertyChanged(nameof(ConfirmedPatients));
+            }
+        }
+    }
+}
+
