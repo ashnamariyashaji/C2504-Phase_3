@@ -505,3 +505,48 @@ namespace PatientAdmissionApp
     }
 }
 
+
+######
+
+
+using System.Collections.ObjectModel;
+using System.Windows;
+
+namespace PatientAdmissionApp
+{
+    public class PatientRegistrationControlViewModel : BaseViewModel
+    {
+        public ObservableCollection<PatientModel> Patients { get; set; }
+        public PatientModel NewPatient { get; set; }
+
+        public PatientRegistrationControlViewModel()
+        {
+            Patients = new ObservableCollection<PatientModel>();
+            NewPatient = new PatientModel();
+        }
+
+        public void RegisterPatient()
+        {
+            if (!string.IsNullOrEmpty(NewPatient.Name) && NewPatient.Dateofbirth != default)
+            {
+                Patients.Add(new PatientModel
+                {
+                    Name = NewPatient.Name,
+                    Dateofbirth = NewPatient.Dateofbirth,
+                    Age = DateTime.Now.Year - NewPatient.Dateofbirth.Year,
+                    Address = NewPatient.Address,
+                    Slot = NewPatient.Slot,
+                    BookingDate = NewPatient.BookingDate
+                });
+
+                MessageBox.Show($"Patient {NewPatient.Name} registered successfully.");
+                NewPatient = new PatientModel();
+                OnPropertyChanged(nameof(NewPatient));
+            }
+            else
+            {
+                MessageBox.Show("Please provide valid patient details.");
+            }
+        }
+    }
+}
