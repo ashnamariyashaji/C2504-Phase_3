@@ -393,3 +393,53 @@ namespace PatientAdmissionApp
 
 
 
+
+**********************
+
+using System.Windows.Input;
+
+namespace PatientAdmissionApp
+{
+    public class MainWindowViewModel : BaseViewModel
+    {
+        private BaseViewModel _currentViewModel;
+        public BaseViewModel CurrentViewModel
+        {
+            get => _currentViewModel;
+            set { _currentViewModel = value; OnPropertyChanged(); }
+        }
+
+        public ICommand ShowRegistrationCommand { get; }
+        public ICommand ShowAppointmentCommand { get; }
+        public ICommand ShowDashboardCommand { get; }
+        public ICommand ExitCommand { get; }
+
+        public MainWindowViewModel()
+        {
+            ShowRegistrationCommand = new RelayCommand(ShowRegistration);
+            ShowAppointmentCommand = new RelayCommand(ShowAppointment);
+            ShowDashboardCommand = new RelayCommand(ShowDashboard);
+            ExitCommand = new RelayCommand(_ => System.Windows.Application.Current.Shutdown());
+
+            // Default view
+            ShowRegistration(null);
+        }
+
+        private void ShowRegistration(object parameter)
+        {
+            CurrentViewModel = new PatientRegistrationControlViewModel();
+        }
+
+        private void ShowAppointment(object parameter)
+        {
+            CurrentViewModel = new AppointmentControlViewModel();
+        }
+
+        private void ShowDashboard(object parameter)
+        {
+            CurrentViewModel = new PatientDashboardViewModel();
+        }
+    }
+}
+
+
