@@ -1060,5 +1060,5 @@ Important note prior to development
 4. Data should appear in Datagrid or gridView following registration.    
 3. LINQ can be used for sorting and filtering. 
 4. Events and Eventhandler should be utilized for providing notifications and changes.
-
+***********************************************************************************************************************************************
 
